@@ -10,7 +10,7 @@ $(TARGET): ipl.o $(SYSFILE)
 $(SYSFILE): asmhead.o bootpack.bin
 	cat $^ > $@
 
-bootpack.bin: stdio.o graphic.o dsctbl.o asmfunc.o bootpack.o
+bootpack.bin: stdio.o int.o graphic.o dsctbl.o asmfunc.o bootpack.o
 	ld -m elf_i386 -T os.ld $^ -o $@
 
 %.o: %.c
