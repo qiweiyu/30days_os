@@ -1,25 +1,26 @@
-OUTPUT_PATH=target
-IPL_NAME=ipl
-IMG_NAME=os
-SYS_NAME=haribote
-ASM_HEAD=asmhead
-BOOT_PACK=bootpack
-OS_LINKERSCRIPT=os.ld
-ASM_FUNC=asmfunc
+TARGET=os.img
+SYSFILE=haribote.sys
 
-default: $(IPL_NAME) $(SYS_NAME)
-	mformat -f 1440 -C -B $(OUTPUT_PATH)/$(IPL_NAME).bin -i $(OUTPUT_PATH)/$(IMG_NAME).img ::
-	mcopy $(OUTPUT_PATH)/$(SYS_NAME).sys -i $(OUTPUT_PATH)/$(IMG_NAME).img ::
+default:$(TARGET)
 
-$(IPL_NAME):
-	nasm $(IPL_NAME).asm -o $(OUTPUT_PATH)/$(IPL_NAME).bin
+$(TARGET): ipl.o $(SYSFILE)
+	mformat -f 1440 -C -B $< -i $(TARGET) ::
+	mcopy $(SYSFILE) -i $(TARGET) ::
 
-$(ASM_HEAD):
-	nasm $(ASM_HEAD).asm -o $(OUTPUT_PATH)/$(ASM_HEAD).bin
+$(SYSFILE): asmhead.o bootpack.bin
+	cat $^ > $@
 
-$(ASM_FUNC):
-	nasm -f elf $(ASM_FUNC).asm -o $(OUTPUT_PATH)/$(ASM_FUNC).o
+bootpack.bin: stdio.o graphic.o dsctbl.o asmfunc.o bootpack.o
+	ld -m elf_i386 -T os.ld $^ -o $@
 
-$(SYS_NAME): $(ASM_HEAD) $(ASM_FUNC)
-	gcc -m32 -nostdlib -fno-pie -T $(OS_LINKERSCRIPT) $(BOOT_PACK).c $(OUTPUT_PATH)/$(ASM_FUNC).o -o $(OUTPUT_PATH)/$(BOOT_PACK).bin
-	cat $(OUTPUT_PATH)/$(ASM_HEAD).bin $(OUTPUT_PATH)/$(BOOT_PACK).bin > $(OUTPUT_PATH)/$(SYS_NAME).sys
+%.o: %.c
+	gcc -w -c -m32 -nostdlib -fno-pie $*.c -o $*.o
+
+%.o: %.asm
+	nasm $*.asm -o $*.o
+
+asmfunc.o: asmfunc.asm
+	nasm -f elf $< -o $@
+
+clean:
+	rm *.bin *.sys *.img *.o

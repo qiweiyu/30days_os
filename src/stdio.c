@@ -1,9 +1,4 @@
 #include <stdbool.h>
-#define sprintf  my_sprintf
-#define vsprintf my_vsprintf
-#define atoi     my_atoi
-#define ftoa     my_ftoa
-#define strnlen  my_strnlen
 
 //#define DOUBLE_ZERO double(1E-307)
 #define DOUBLE_ZERO (1E-307)
