@@ -2,6 +2,7 @@ GLOBAL io_hlt, io_cli, io_sti, io_stihlt
 GLOBAL io_in8, io_in16, io_in32
 GLOBAL io_out8, io_out16, io_out32
 GLOBAL io_load_eflags, io_store_eflags
+GLOBAl load_gdtr, load_idtr
 
 io_hlt:
 	HLT
@@ -65,3 +66,15 @@ io_store_eflags:
 	PUSH EAX
 	POPFD
 	RET
+
+load_gdtr:
+		MOV		AX,[ESP+4]
+		MOV		[ESP+6],AX
+		LGDT	[ESP+6]
+		RET
+
+load_idtr:
+		MOV		AX,[ESP+4]
+		MOV		[ESP+6],AX
+		LIDT	[ESP+6]
+		RET
